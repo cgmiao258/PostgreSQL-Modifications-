@@ -1,0 +1,13 @@
+Students:
+1. Christopher Miao (miao0079)
+2. Sulekha Abas (abas0013)
+
+Brief Summary:
+We changed createplan.c to include a global counter variable to keep track of how many times queries have been run. This was then used to cycle through the different joins, first nested loop then merge join then hash join. We added print statements to each case in order to see which join method was being used.
+
+Detailed Changes:
+1. backend/optimizer/plan/createplan.c
+	In line 46 I added a global count variable so I could keep track of what iteration the query is on
+	In line 910 I added an int myplan variable to specify which join method to use and changed it so that it cycle between nestloop merge join and hash join depending on the value of the global count variable, with it starting as nestloop and having the global count variable increment everytime a join occurs. 
+	In line 920 I changed the switch variable to be the myplan variable that I defined in line 910 so that the program chooses to use my plan.
+	In lines 925, 930, 935 I have the print of which join is being used to show which join is currently in use.	

@@ -1,0 +1,26 @@
+Students:
+1. Christopher Miao (miao0079)
+
+Brief Summary:
+<A Brief Summary about the change you make (1 Paragraph max)>
+I implemented a linked list structure for both MRU/LRU and FIFO. The two structures only differed by the dequeueing process. For MRU/LRU/FIFO a buffer was removed from the list anytime a buffer was pinned. A buffer for LRU/MRU was added into the list whenever a buffer was unpinned and moved around in the list if it was repinned/unpinned. In LRU/MRU the timestamp was updated whenever it was unpinned/pinned. But for FIFO if a buffer was reaccessed (unpinned) its spot and timestamp would not change in the list, only when the buffer is first brought into memory or if the page is full and a new buffer was loaded the timestamp would change. I implemented three boolean flags signifying which buffer replacement strategy is employed with it cycling through in order of FIFO->LRU->MRU->FIFO->etc. I also added functions to enable my linked list to dequeue/queuein and print the candidate buffers. I also changed the buffer data structure so that it had a timestamp for both lru/mru and fifo and initialized it to 0 for all buffers.
+
+Detailed Changes:
+1. <freelist.c>: <src/backend/storage/buffer/freelist.c>
+	- In line 26, I added boolean flags for each replacement policy so I can trigger them later. I also made my struct for the nodes in my list and defined the heads, tails, first, temp for the list with the f suffix signifying it is for FIFO. Where my list pushes to the tail.
+	- In line 125, I added prototypes for my list functionality and implemented functions for queueing in, queuing out, and printing for my fifo list and my lru/mru lists.
+	- In line 507 I implemented my LRU which starts at the queues head because that is the least recently used buffer and replaces it, printing the other candidate buffers, timestamp of the buffer used, policy, and information about page space. In the next two functions I did the same implementation but for FIFO and MRU. I made sure to change the boolean flags in a way so that the order of buffer replacement goes FIFO->LRU->MRU->FIFO->ETC. 
+	
+2. <bufmgr.c>: <src/backend/storage/buffer/bufmgr.c>
+	- In line 57, I added a global variable to keep track of the timestamp.
+	- In line 1266, I update the FIFO buffer timestamp and increment it by one. I do this because it is a new buffer to the memory.
+	- In line 1341, I update the FIFO buffer timestamp and increment it by one. I do this because it is a new buffer to the memory.
+	- In line 1647, I dequeue in for both FIFO and LRU/MRU and update their timestamps and increment the timestamp of LRU/MRU buffers because it is being accessed.
+	- In line 1698, I dequeue in for both FIFO and LRU/MRU and update their timestamps and increment the timestamp of LRU/MRU buffers because it is being accessed.
+	- In line 1769, I queue in for both FIFO and LRU/MRU.
+	
+3. <buf_internals.h>: <src/include/storage/buf_internals.h>
+	- In line 192, I made a change by adding lrutimestamp and fifotimestamp in the bufferdesc data structure so I can save the timestamp of the buffer.
+
+4. <buf_init.c>: <src/backend/storage/buffer/buf_init.c>
+	- In line 135, I initialize the initial timestamp for all buffers as 0 for both LRU/MRU and FIFO.
